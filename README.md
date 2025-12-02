@@ -40,7 +40,7 @@ To protect privacy, the workflow contains placeholders. You must **Find and Repl
 ### 4. Google Sheets Setup
 Create a Google Sheet with a tab named `RawData`. The workflow expects specific columns to exist for logging.  
 * **Required Columns:** `Date`, `Location`, `Predicted Rain During Day`, `Actual Rain During Day`, `Predicted 8am`... `Predicted 11pm`, `Actual 8am`... `Actual 11pm`.  
-*Use Google Apps Script to calculate accuracy through comparisons between Predicted and Actual columns.*
+*You can copy the way I structured it from my demo Google Sheets and use my use Google Apps Script code within the cells to calculate accuracy through comparisons between Predicted and Actual columns.*
 
 ## Logic Overview
 
