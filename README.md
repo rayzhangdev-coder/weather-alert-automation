@@ -45,8 +45,8 @@ Create a Google Sheet with a tab named `RawData`. The workflow expects specific 
 ## Logic Overview
 
 1.  **8:00 AM Trigger:** Fetches forecast.
-    * If rain > 60%: Sends warning.
-    * If clear: Sends "No umbrella needed" or "Clear skies" message.
+    * If rain > 60%: Sends "alert" message.
+    * Else: Sends "no umbrella needed" message.
     * Logs prediction to Google Sheets.
 2.  **5:00 PM Trigger:** Fetches evening forecast.
     * If rain detected after 6 PM: Sends specific evening warning.
