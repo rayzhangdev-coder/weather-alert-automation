@@ -58,7 +58,3 @@ Create a Google Sheet with a tab named `RawData`. The workflow expects specific 
 3.  **6:00 AM (Next Day) Trigger:** * Fetches historical weather data for the previous day.
     * Compares `Predicted` vs `Actual`.
     * If the bot failed (predicted Clear but it Rained), it triggers the **Apology Message**.
-
-## 📝 License
-
-This project is open source and available under the [MIT License](LICENSE).
