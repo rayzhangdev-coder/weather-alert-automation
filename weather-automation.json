@@ -1,0 +1,1259 @@
+{
+  "updatedAt": "2025-11-25T20:49:13.000Z",
+  "createdAt": "2025-10-29T04:10:27.363Z",
+  "id": "UJba0PF36Y7OZOte",
+  "name": "WeatherBot Automation (Public Template)",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "jsCode": "const weatherData = $input.first().json;\nconst hours = weatherData.forecast.forecastday[0].hour;\n\nconst schoolRainyHours = [];\nconst rainyHoursPast6 = [];\nconst totalRainyHours = [];\n\nhours.forEach(hour => {\n  const hourTime = new Date(hour.time);\n  const hourOfDay = hourTime.getHours();\n  const rainChance = hour.chance_of_rain;\n\n  if (hourOfDay >= 8 && hourOfDay <= 17) {\n    if (rainChance >= 60) {\n      schoolRainyHours.push({\n        time: hourTime.toLocaleTimeString('en-US', { \n        hour: 'numeric', \n        hour12: true,\n        minute: undefined\n      }),\n        hour: hourOfDay,\n        rainPercent: rainChance\n      });\n      totalRainyHours.push({\n        time: hourTime.toLocaleTimeString('en-US', { \n        hour: 'numeric', \n        hour12: true,\n        minute: undefined\n      }),\n        hour: hourOfDay,\n        rainPercent: rainChance\n      });\n    }\n  } \n\n  else if (hourOfDay >= 18 && hourOfDay <= 23) {\n    if (rainChance >= 60) {\n      totalRainyHours.push({\n        time: hourTime.toLocaleTimeString('en-US', { \n        hour: 'numeric', \n        hour12: true,\n        minute: undefined\n      }),\n        hour: hourOfDay,\n        rainPercent: rainChance\n      });\n      rainyHoursPast6.push({\n        time: hourTime.toLocaleTimeString('en-US', { \n        hour: 'numeric', \n        hour12: true,\n        minute: undefined\n      }),\n        hour: hourOfDay,\n        rainPercent: rainChance\n      });\n    }\n  }\n});\n\n\nreturn [{\n  json: {\n    hasRain: totalRainyHours.length > 0,\n    schoolRainyHours: schoolRainyHours,\n    rainyHoursPast6: rainyHoursPast6,\n    totalRainyHours: totalRainyHours,\n    rainDuringClass: schoolRainyHours.length > 0,\n    rainAfterClass: rainyHoursPast6.length > 0\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1472,
+        208
+      ],
+      "id": "b9e3e31a-c512-40da-b97f-b2d3a2ffe205",
+      "name": "rainData"
+    },
+    {
+      "parameters": {
+        "jsCode": "const users = [\n  {\n    \"id\": \"PLACEHOLDER_CHAT_ID_1\",\n    \"first_name\": \"John\",\n    \"last_name\": \"Doe\"\n  },\n  {\n    \"id\": \"PLACEHOLDER_CHAT_ID_2\",\n    \"first_name\": \"Jane\",\n    \"last_name\": \"Smith\"\n  }\n];\n\nconst rainData = $input.first().json;\n\nreturn users.map(user => ({\n  json: {\n    chatId: user.id,\n    firstName: user.first_name,\n    ...rainData\n  }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -992,
+        160
+      ],
+      "id": "458a9f15-e5ce-44e5-8a45-6402115bdafe",
+      "name": "UserData"
+    },
+    {
+      "parameters": {
+        "jsCode": "const users = [\n  {\n    \"id\": \"PLACEHOLDER_CHAT_ID_1\",\n    \"first_name\": \"John\",\n    \"last_name\": \"Doe\"\n  },\n  {\n    \"id\": \"PLACEHOLDER_CHAT_ID_2\",\n    \"first_name\": \"Jane\",\n    \"last_name\": \"Smith\"\n  }\n];\n\nconst rainData = $input.first().json;\n\nreturn users.map(user => ({\n  json: {\n    chatId: user.id,\n    firstName: user.first_name,\n    ...rainData,\n  }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -672,
+        864
+      ],
+      "id": "a8cba0a0-63dd-4be9-8387-6de209e6cb19",
+      "name": "UserData1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "e43cad02-6c79-43b2-8c1a-1b9c57f5bff3",
+              "leftValue": "={{ $json.rainDuringClass }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -448,
+        224
+      ],
+      "id": "06f13531-9925-4bdf-8344-e3fa28840504",
+      "name": "rainDuringClass"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1856,
+        288
+      ],
+      "id": "8ef66ae7-a815-45f8-b2f5-e171ee96c235",
+      "name": "8am"
+    },
+    {
+      "parameters": {
+        "jsCode": "const weatherData = $input.first().json;\nconst hours = weatherData.forecast.forecastday[0].hour;\n\nfunction combineConsecutiveHours(hours) {\n  if (hours.length === 0) return [];\n  \n  const combined = [];\n  let currentRange = { \n    start: hours[0].hour, \n    end: hours[0].hour\n  };\n  \n  for (let i = 1; i < hours.length; i++) {\n    if (hours[i].hour === currentRange.end + 1) {\n      currentRange.end = hours[i].hour;\n    } else {\n      combined.push(currentRange);\n      currentRange = { \n        start: hours[i].hour, \n        end: hours[i].hour\n      };\n    }\n  }\n  combined.push(currentRange);\n  \n  return combined.map(range => {\n    const formatHour = (hour) => {\n      if (hour === 0 || hour === 24) return '12AM';\n      if (hour === 12) return '12PM';\n      return hour > 12 ? `${hour - 12}PM` : `${hour}AM`;\n    };\n    \n    // Each range represents hours FROM start TO end+1\n    // So 6PM becomes \"6-7PM\", 6-8PM becomes \"6-9PM\"\n    const startFormatted = formatHour(range.start);\n    const endFormatted = formatHour(range.end + 1);\n    \n    return `${startFormatted}-${endFormatted}`;\n  });\n}\n\nlet rainyHoursPast6 = [];\nlet totalRainyHours = [];\n\nhours.forEach(hour => {\n  const hourTime = new Date(hour.time);\n  const hourOfDay = hourTime.getHours();\n  const rainChance = hour.chance_of_rain;\n  if (hourOfDay >= 8 && hourOfDay <= 17) {\n    if (rainChance >= 60) {\n      totalRainyHours.push({\n        time: hourTime.toLocaleTimeString('en-US', { \n        hour: 'numeric', \n        hour12: true,\n        minute: undefined\n      }),\n        hour: hourOfDay,\n        rainPercent: rainChance\n      });\n    }\n  } \n  else if (hourOfDay >= 18 && hourOfDay <= 23) {\n    if (rainChance >= 60) {\n      const hourData = {\n        time: hourTime.toLocaleTimeString('en-US', { \n          hour: 'numeric', \n          hour12: true,\n          minute: undefined\n        }),\n        hour: hourOfDay,\n        rainPercent: rainChance\n      };\n      rainyHoursPast6.push(hourData);\n      totalRainyHours.push(hourData);\n    }\n  }\n});\n\nreturn [{\n  json: {\n    hasRain: totalRainyHours.length > 0,\n    totalRainyHours: totalRainyHours,\n    rainyHoursPast6: rainyHoursPast6,\n    rainAfterClass: rainyHoursPast6.length > 0,\n    combinedRainyHoursPast6: combineConsecutiveHours(rainyHoursPast6)\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1120,
+        608
+      ],
+      "id": "c2e7c0a1-e469-4a64-8ab4-82fabb266d40",
+      "name": "rainDataWithHourCombination"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "PLACEHOLDER_SPREADSHEET_ID",
+          "mode": "list",
+          "cachedResultName": "Weatherbot Prediction Log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/PLACEHOLDER_SPREADSHEET_ID"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "RawData",
+          "mode": "list",
+          "cachedResultName": "RawData"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Date": "={{ new Date().toLocaleDateString('en-US', { timeZone: 'America/New_York' }) }}",
+            "Location": "College Park, MD",
+            "Predicted Rain During Day": "={{ $json.hasRain ? 'Yes' : 'No' }}",
+            "Predicted 8am": "={{ $json.totalRainyHours.some(hour => hour.hour === 8) ? 'Yes' : 'No' }}",
+            "Predicted 9am": "={{ $json.totalRainyHours.some(hour => hour.hour === 9) ? 'Yes' : 'No' }}",
+            "Predicted 10am": "={{ $json.totalRainyHours.some(hour => hour.hour === 10) ? 'Yes' : 'No' }}",
+            "Predicted 11am": "={{ $json.totalRainyHours.some(hour => hour.hour === 11) ? 'Yes' : 'No' }}",
+            "Predicted 12pm": "={{ $json.totalRainyHours.some(hour => hour.hour === 12) ? 'Yes' : 'No' }}",
+            "Predicted 1pm": "={{ $json.totalRainyHours.some(hour => hour.hour === 13) ? 'Yes' : 'No' }}",
+            "Predicted 2pm": "={{ $json.totalRainyHours.some(hour => hour.hour === 14) ? 'Yes' : 'No' }}",
+            "Predicted 3pm": "={{ $json.totalRainyHours.some(hour => hour.hour === 15) ? 'Yes' : 'No' }}",
+            "Predicted 4pm": "={{ $json.totalRainyHours.some(hour => hour.hour === 16) ? 'Yes' : 'No' }}",
+            "Predicted 5pm": "={{ $json.totalRainyHours.some(hour => hour.hour === 17) ? 'Yes' : 'No' }}",
+            "Predicted 6pm": "={{ $json.totalRainyHours.some(hour => hour.hour === 18) ? 'Yes' : 'No' }}",
+            "Actual 2pm": "=",
+            "Actual 1pm": "=",
+            " ✅/ ❌": "=",
+            "Predicted 7pm": "={{ $json.totalRainyHours.some(hour => hour.hour === 19) ? 'Yes' : 'No' }}",
+            "Predicted 8pm": "={{ $json.totalRainyHours.some(hour => hour.hour === 20) ? 'Yes' : 'No' }}",
+            "Predicted 9pm": "={{ $json.totalRainyHours.some(hour => hour.hour === 21) ? 'Yes' : 'No' }}",
+            "Predicted 10pm": "={{ $json.totalRainyHours.some(hour => hour.hour === 22) ? 'Yes' : 'No' }}",
+            "Predicted 11pm": "={{ $json.totalRainyHours.some(hour => hour.hour === 23) ? 'Yes' : 'No' }}"
+          },
+          "matchingColumns": [
+            "Date"
+          ],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -1136,
+        32
+      ],
+      "id": "b3234c7e-d68c-46b6-a85b-cdc79a9604c3",
+      "name": "Predicted: 8am-5pm",
+      "credentials": {
+        "googleApi": {
+          "id": "PLACEHOLDER_CREDENTIAL_ID",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "PLACEHOLDER_SPREADSHEET_ID",
+          "mode": "list",
+          "cachedResultName": "Weatherbot Prediction Log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/PLACEHOLDER_SPREADSHEET_ID"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "RawData",
+          "mode": "list",
+          "cachedResultName": "RawData"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Predicted 6pm": "={{ $json.totalRainyHours.some(hour => hour.hour === 18) ? 'Yes' : 'No' }}",
+            "Actual 2pm": "=",
+            "Actual 1pm": "=",
+            "Predicted 7pm": "={{ $json.totalRainyHours.some(hour => hour.hour === 19) ? 'Yes' : 'No' }}",
+            "Predicted 8pm": "={{ $json.totalRainyHours.some(hour => hour.hour === 20) ? 'Yes' : 'No' }}",
+            "Predicted 9pm": "={{ $json.totalRainyHours.some(hour => hour.hour === 21) ? 'Yes' : 'No' }}",
+            "Predicted 10pm": "={{ $json.totalRainyHours.some(hour => hour.hour === 22) ? 'Yes' : 'No' }}",
+            "Predicted 11pm": "={{ $json.totalRainyHours.some(hour => hour.hour === 23) ? 'Yes' : 'No' }}",
+            "row_number": 0,
+            "Date": "={{ new Date().toLocaleDateString('en-US', { timeZone: 'America/New_York' }) }}",
+            "Predicted Rain During Day": "={{ $json.hasRain ? 'Yes' : \"No\" }}"
+          },
+          "matchingColumns": [
+            "Date"
+          ],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -736,
+        672
+      ],
+      "id": "bc097daf-8abb-4e1a-8c42-34323bef0d14",
+      "name": "Predicted: 6pm-11pm",
+      "credentials": {
+        "googleApi": {
+          "id": "PLACEHOLDER_CREDENTIAL_ID",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "69861d44-94d8-4507-a335-d3b427f57d63",
+              "leftValue": "={{ !!$json.hasRain }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -992,
+        432
+      ],
+      "id": "adf64ebd-5b16-4840-8e95-1a5b149d5c98",
+      "name": "hasRain"
+    },
+    {
+      "parameters": {
+        "jsCode": "const users = [\n  {\n    \"id\": \"PLACEHOLDER_CHAT_ID_1\",\n    \"first_name\": \"John\",\n    \"last_name\": \"Doe\"\n  },\n  {\n    \"id\": \"PLACEHOLDER_CHAT_ID_2\",\n    \"first_name\": \"Jane\",\n    \"last_name\": \"Smith\"\n  }\n];\n\n\nreturn users.map(user => ({\n  json: {\n    chatId: user.id,\n    firstName: user.first_name,\n  }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        544,
+        560
+      ],
+      "id": "012d7817-5690-48c9-8150-9bcb788818be",
+      "name": "UserData2"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 17,
+              "triggerAtMinute": 30
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1664,
+        464
+      ],
+      "id": "e42612a1-21f0-4663-983d-080b7ca220d0",
+      "name": "5pm(check for rain after classtime)"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "PLACEHOLDER_SPREADSHEET_ID",
+          "mode": "list",
+          "cachedResultName": "Weatherbot Prediction Log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/PLACEHOLDER_SPREADSHEET_ID"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "RawData",
+          "mode": "list",
+          "cachedResultName": "RawData"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Date": "={{ new Date(Date.now() - 86400000).toLocaleDateString('en-US', { timeZone: 'America/New_York' }) }}",
+            "Actual Rain During Day": "={{ $json.rainedYesterday ? 'Yes' : 'No'}}",
+            "Actual 8am": "={{ $json.actualHoursRained.some(hour => hour.time === 8) ? 'Yes' : 'No' }}",
+            "Actual 9am": "={{ $json.actualHoursRained.some(hour => hour.time === 9) ? 'Yes' : 'No' }}",
+            "Actual 10am": "={{ $json.actualHoursRained.some(hour => hour.time === 10) ? 'Yes' : 'No' }}",
+            "Actual 11am": "={{ $json.actualHoursRained.some(hour => hour.time === 11) ? 'Yes' : 'No' }}",
+            "Actual 12pm": "={{ $json.actualHoursRained.some(hour => hour.time === 12) ? 'Yes' : 'No' }}",
+            "Actual 1pm": "={{ $json.actualHoursRained.some(hour => hour.time === 13) ? 'Yes' : 'No' }}",
+            "Actual 2pm": "={{ $json.actualHoursRained.some(hour => hour.time === 14) ? 'Yes' : 'No' }}",
+            "Actual 5pm": "={{ $json.actualHoursRained.some(hour => hour.time === 17) ? 'Yes' : 'No' }}",
+            "Actual 4pm": "={{ $json.actualHoursRained.some(hour => hour.time === 16) ? 'Yes' : 'No' }}",
+            "Actual 6pm": "={{ $json.actualHoursRained.some(hour => hour.time === 18) ? 'Yes' : 'No' }}",
+            "Actual 7pm": "={{ $json.actualHoursRained.some(hour => hour.time === 19) ? 'Yes' : 'No' }}",
+            "Actual 8pm": "={{ $json.actualHoursRained.some(hour => hour.time === 20) ? 'Yes' : 'No' }}",
+            "Actual 10pm": "={{ $json.actualHoursRained.some(hour => hour.time === 22) ? 'Yes' : 'No' }}",
+            "Actual 11pm": "={{ $json.actualHoursRained.some(hour => hour.time === 23) ? 'Yes' : 'No' }}",
+            "Actual 9pm": "={{ $json.actualHoursRained.some(hour => hour.time === 21) ? 'Yes' : 'No' }}",
+            "Actual 3pm": "={{ $json.actualHoursRained.some(hour => hour.time === 15) ? 'Yes' : 'No' }}"
+          },
+          "matchingColumns": [
+            "Date"
+          ],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -992,
+        928
+      ],
+      "id": "c71e2196-7250-4361-9918-d0709b1d23cc",
+      "name": "Update w/ Actual Info from 8am - 11pm",
+      "credentials": {
+        "googleApi": {
+          "id": "PLACEHOLDER_CREDENTIAL_ID",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "http://api.weatherapi.com/v1/forecast.json",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "key",
+              "value": "YOUR_WEATHERAPI_KEY"
+            },
+            {
+              "name": "q",
+              "value": "college park"
+            },
+            {
+              "name": "day",
+              "value": "1"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1680,
+        144
+      ],
+      "id": "cf2b47bc-38cf-4b7b-a348-23f03df3a2cd",
+      "name": "Rain HTTP Request"
+    },
+    {
+      "parameters": {
+        "url": "http://api.weatherapi.com/v1/forecast.json",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "key",
+              "value": "YOUR_WEATHERAPI_KEY"
+            },
+            {
+              "name": "q",
+              "value": "college park"
+            },
+            {
+              "name": "day",
+              "value": "1"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1360,
+        528
+      ],
+      "id": "5ba1b6bf-3de3-40ac-a0ba-7abf3e39691e",
+      "name": "Rain HTTP Request1"
+    },
+    {
+      "parameters": {
+        "url": "http://api.weatherapi.com/v1/forecast.json",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "key",
+              "value": "YOUR_WEATHERAPI_KEY"
+            },
+            {
+              "name": "q",
+              "value": "college park"
+            },
+            {
+              "name": "day",
+              "value": "1"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -80,
+        736
+      ],
+      "id": "0eb0dea5-6dea-4065-ba2c-3fa2661734ff",
+      "name": "Rain HTTP Request3"
+    },
+    {
+      "parameters": {
+        "amount": 9,
+        "unit": "hours"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -384,
+        672
+      ],
+      "id": "223783eb-b395-45b9-b9a8-c0734c37c1d3",
+      "name": "wait until 5pm",
+      "webhookId": "ba11696d-1cd7-4ad6-9883-c1d1b181b9f0"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "text": "=F*****! it ended up raining, thats my bad.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        752,
+        656
+      ],
+      "id": "1cc9918d-3d02-4ecc-b37e-5ee3a68314d5",
+      "name": "Apology Message If It rains(cuz it was not supposed to rain)",
+      "webhookId": "b543aa56-ca30-4619-878b-de6fcbad5fed",
+      "credentials": {
+        "telegramApi": {
+          "id": "PLACEHOLDER_CREDENTIAL_ID",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "11e99790-e5d6-487e-a709-ceb519de5b33",
+              "leftValue": "={{ $json.precipitated }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        336,
+        640
+      ],
+      "id": "3b73c557-02b8-4db2-a1cd-edc539da2161",
+      "name": "If it rained"
+    },
+    {
+      "parameters": {
+        "jsCode": "const weatherData = $input.first().json;\nconst hours = weatherData.forecast.forecastday[0].hour;\n\nlet precipitated = false;\n\nfor (let hour of hours) {\n  const hourTime = new Date(hour.time_epoch * 1000);\n  const hourOfDay = hourTime.getHours();\n  \n  if (hourOfDay >= 8 && hourOfDay <= 17) {\n    if (hour.precip_mm > 0) {\n      precipitated = true;\n      break;\n    }\n  }\n}\n\nreturn [{ json: { precipitated: precipitated } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        192,
+        816
+      ],
+      "id": "700d9abd-1b83-4e74-a56f-7d8d0368b1a8",
+      "name": "precip data"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "08cf635c-659a-4bb1-9d7a-f80ca1d29ffd",
+              "leftValue": "={{ $json.rainAfterClass }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -432,
+        912
+      ],
+      "id": "6a3e63ab-a41d-430c-85b4-a53a5b197db5",
+      "name": "If rain after 6pm"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "text": "=Hey {{ $json.firstName }}! 🫡\nIf ur planning on going out after 6,\nWatch out for rain {{ $json.combinedRainyHoursPast6.join(', ') }}!",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -112,
+        928
+      ],
+      "id": "566f7c04-9190-4824-a933-eb6733dcd0e7",
+      "name": "Send reminder (for times that will rain past 6)",
+      "webhookId": "59e28dac-107e-4dfc-bd17-edc8d958234e",
+      "credentials": {
+        "telegramApi": {
+          "id": "PLACEHOLDER_CREDENTIAL_ID",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "text": "=Yo! {{ $json.firstName }}\nNo umbrella needed today! ☀️",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        112,
+        448
+      ],
+      "id": "646470d8-1d4e-4060-a13a-3277a0b19cab",
+      "name": "No rain message",
+      "webhookId": "2054f9c1-38a9-40c1-af6f-efeea9d74a3e",
+      "credentials": {
+        "telegramApi": {
+          "id": "PLACEHOLDER_CREDENTIAL_ID",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "text": "=GOOD MORNING {{ $json.firstName.toUpperCase() }}!\nClear skies today! 🌇🌅🌄",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        80,
+        576
+      ],
+      "id": "bbea4fea-9621-4a63-8109-35c584f4d607",
+      "name": "No rain message1",
+      "webhookId": "2054f9c1-38a9-40c1-af6f-efeea9d74a3e",
+      "credentials": {
+        "telegramApi": {
+          "id": "PLACEHOLDER_CREDENTIAL_ID",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "text": "=Hey! No rain during class time today! 🌞",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        432,
+        384
+      ],
+      "id": "5588eb3f-7ecc-4aee-881e-f3c0ab17754b",
+      "name": "No rain during class message",
+      "webhookId": "fa7961cf-6a48-46c3-98b5-ba2e7a74f69d",
+      "credentials": {
+        "telegramApi": {
+          "id": "PLACEHOLDER_CREDENTIAL_ID",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c54bd7d9-f345-4e91-85ca-25234e5cfd11",
+              "leftValue": "={{ (DateTime.now().day % 2) === 0 }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -400,
+        512
+      ],
+      "id": "96d32831-d30d-4f3a-8a8f-1adb4186069a",
+      "name": "If(different msg by day)"
+    },
+    {
+      "parameters": {
+        "jsCode": "const yesterday = new Date(Date.now() - 86400000).toLocaleDateString('en-CA', { \n  timeZone: 'America/New_York' \n});\n\n\n// College Park\nconst latitude = 39.00; \nconst longitude = -76.93;\n\nreturn [{\n  json: {\n    url: `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&hourly=precipitation&timezone=America%2FNew_York&start_date=${yesterday}&end_date=${yesterday}`,\n    yesterday: yesterday\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1504,
+        736
+      ],
+      "id": "df5dba92-9ad4-4ae3-b516-981bacb3f9be",
+      "name": "get yesterday's date"
+    },
+    {
+      "parameters": {
+        "jsCode": "const weatherData = $input.first().json;\nconst yesterday = new Date(Date.now() - 86400000).toLocaleDateString('en-CA', { \n  timeZone: 'America/New_York' \n});\n\nconst hourlyData = weatherData.hourly;\n\nlet rainedYesterday = false;\nconst hoursWithRain = [];\n\nhourlyData.time.forEach((timestamp, index) => {\n  \n  if(new Date(timestamp).getHours() >= 8 && new Date(timestamp).getHours() <= 23){\n    const precipitation = hourlyData.precipitation[index] || 0;\n    const hasPrecip = precipitation > 0;\n    \n    if (hasPrecip) {\n      rainedYesterday = true;\n      hoursWithRain.push({\n        time: new Date(timestamp).getHours(),\n        precipitation: precipitation\n      });\n    }\n  }\n});\n\nreturn [{\n  json: {\n    date: yesterday,\n    rainedYesterday: hoursWithRain.length > 0 ? true : false,\n    actualHoursRained: hoursWithRain\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1200,
+        848
+      ],
+      "id": "6d26934e-19ee-4ddf-8fff-3e2ef1e9949a",
+      "name": "processRainData"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "email@example.com"
+            },
+            {
+              "name": "Accept",
+              "value": "application/geo+json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -1424,
+        960
+      ],
+      "id": "c1e5249d-8ecc-45b2-be8a-b78bee27ee6b",
+      "name": "OpenMeteo Request"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "6b64d400-c366-4319-b6ec-5fd340aa3dc7",
+              "leftValue": "={{ $json.schoolRainyHours.filter(hour => hour.rainPercent >= 80).length > 0 }}",
+              "rightValue": 80,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        224,
+        96
+      ],
+      "id": "5aea032d-44f7-4014-a4c4-e575e257dbcc",
+      "name": "if>=80%"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "text": "=Good Morning {{ $json.firstName }}!\nLikely rain, bring umbrella! ☔",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        496,
+        224
+      ],
+      "id": "cfffca0e-8770-49b8-ae9c-4d3d36240187",
+      "name": ">=60% rain message",
+      "webhookId": "2054f9c1-38a9-40c1-af6f-efeea9d74a3e",
+      "credentials": {
+        "telegramApi": {
+          "id": "PLACEHOLDER_CREDENTIAL_ID",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "text": "=Good Morning {{ $json.firstName }}! 🌧️🌧️🌧️\nBring Umbrella Today! ☔️☔️",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        480,
+        16
+      ],
+      "id": "70a2cee1-ff0d-4fdf-a1cc-48ad3c8002ef",
+      "name": ">=80% rain message",
+      "webhookId": "2054f9c1-38a9-40c1-af6f-efeea9d74a3e",
+      "credentials": {
+        "telegramApi": {
+          "id": "PLACEHOLDER_CREDENTIAL_ID",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 6
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1696,
+        720
+      ],
+      "id": "7e53999b-29f3-449c-9cab-097da4f16b3e",
+      "name": "6am logging prev day"
+    },
+    {
+      "parameters": {
+        "amount": 6.5,
+        "unit": "hours"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        960,
+        784
+      ],
+      "id": "49b046cc-319b-4058-930a-30d2b1e5a8dd",
+      "name": "Wait",
+      "webhookId": "a48fb885-716c-43df-a47a-506acf78239d"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "text": "=I want to take this moment to apologize for my incorrect prediction today.\nHave a good night! 🎑🌃🌉🌌🌠",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1152,
+        848
+      ],
+      "id": "f4655853-2d45-46fa-9e4b-a174ffce84c8",
+      "name": "Good Night Apology message(for incorrect prediction",
+      "webhookId": "aaf17368-e4c6-4eb1-92ee-26bc40ab206a",
+      "credentials": {
+        "telegramApi": {
+          "id": "PLACEHOLDER_CREDENTIAL_ID",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "rainData": {
+      "main": [
+        [
+          {
+            "node": "Predicted: 8am-5pm",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "UserData": {
+      "main": [
+        [
+          {
+            "node": "hasRain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "rainDuringClass": {
+      "main": [
+        [
+          {
+            "node": "if>=80%",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No rain during class message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "UserData1": {
+      "main": [
+        [
+          {
+            "node": "If rain after 6pm",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "8am": {
+      "main": [
+        [
+          {
+            "node": "Rain HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "rainDataWithHourCombination": {
+      "main": [
+        [
+          {
+            "node": "Predicted: 6pm-11pm",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Predicted: 8am-5pm": {
+      "main": [
+        []
+      ]
+    },
+    "Predicted: 6pm-11pm": {
+      "main": [
+        []
+      ]
+    },
+    "hasRain": {
+      "main": [
+        [
+          {
+            "node": "rainDuringClass",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If(different msg by day)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "wait until 5pm",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "UserData2": {
+      "main": [
+        [
+          {
+            "node": "Apology Message If It rains(cuz it was not supposed to rain)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "5pm(check for rain after classtime)": {
+      "main": [
+        [
+          {
+            "node": "Rain HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update w/ Actual Info from 8am - 11pm": {
+      "main": [
+        []
+      ]
+    },
+    "Rain HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "rainData",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rain HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "rainDataWithHourCombination",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rain HTTP Request3": {
+      "main": [
+        [
+          {
+            "node": "precip data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "wait until 5pm": {
+      "main": [
+        [
+          {
+            "node": "Rain HTTP Request3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If it rained": {
+      "main": [
+        [
+          {
+            "node": "UserData2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "precip data": {
+      "main": [
+        [
+          {
+            "node": "If it rained",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If rain after 6pm": {
+      "main": [
+        [
+          {
+            "node": "Send reminder (for times that will rain past 6)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "If(different msg by day)": {
+      "main": [
+        [
+          {
+            "node": "No rain message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No rain message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get yesterday's date": {
+      "main": [
+        [
+          {
+            "node": "OpenMeteo Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "processRainData": {
+      "main": [
+        [
+          {
+            "node": "Update w/ Actual Info from 8am - 11pm",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenMeteo Request": {
+      "main": [
+        [
+          {
+            "node": "processRainData",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "if>=80%": {
+      "main": [
+        [
+          {
+            "node": ">=80% rain message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": ">=60% rain message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "6am logging prev day": {
+      "main": [
+        [
+          {
+            "node": "get yesterday's date",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send reminder (for times that will rain past 6)": {
+      "main": [
+        []
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Good Night Apology message(for incorrect prediction",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apology Message If It rains(cuz it was not supposed to rain)": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": {
+    "node:8am": {
+      "recurrenceRules": []
+    },
+    "node:11:59pm": {
+      "recurrenceRules": []
+    },
+    "node:5pm(check for rain after classtime)": {
+      "recurrenceRules": []
+    },
+    "node:test": {
+      "recurrenceRules": []
+    },
+    "node:Midnight Logging": {
+      "recurrenceRules": []
+    },
+    "node:6am logging prev day": {
+      "recurrenceRules": []
+    }
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "b34bfa82-4055-4a88-b639-158e0d93759d",
+  "triggerCount": 3,
+  "shared": [
+    {
+      "updatedAt": "2025-10-29T04:10:27.365Z",
+      "createdAt": "2025-10-29T04:10:27.365Z",
+      "role": "workflow:owner",
+      "workflowId": "UJba0PF36Y7OZOte",
+      "projectId": "IbPueodtvFkN6ruv"
+    }
+  ],
+  "tags": []
+}
