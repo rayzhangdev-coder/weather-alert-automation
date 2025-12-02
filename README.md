@@ -38,8 +38,8 @@ To protect privacy, the workflow contains placeholders. You must **Find and Repl
 | `email@example.com` | **OpenMeteo Request Node** | Your email address (required by OpenMeteo for "User-Agent" headers). |
 
 ### 4. Google Sheets Setup
-Create a Google Sheet with a tab named `RawData`. The workflow expects specific columns to exist for logging. 
-* **Required Columns:** `Date`, `Location`, `Predicted Rain During Day`, `Actual Rain During Day`, `Predicted 8am`... `Predicted 11pm`, `Actual 8am`... `Actual 11pm`. *
+Create a Google Sheet with a tab named `RawData`. The workflow expects specific columns to exist for logging.  
+* **Required Columns:** `Date`, `Location`, `Predicted Rain During Day`, `Actual Rain During Day`, `Predicted 8am`... `Predicted 11pm`, `Actual 8am`... `Actual 11pm`.  
 *Use Google Apps Script to Calculate accuracy through comparisons between Predicted and Actual columns.*
 
 ## Logic Overview
