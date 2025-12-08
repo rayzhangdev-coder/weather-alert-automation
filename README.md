@@ -2,7 +2,7 @@
 
 An automated weather alert system for rain, snow, and temperature built with **n8n**. Monitors weather during class hours (8 AM - 5 PM) and evening hours (5 PM - 12 AM).
 
-It also logs predictions vs. actual weather data into Google Sheets for accuracy tracking: [View My Demo Google Sheet Here](https://docs.google.com/spreadsheets/d/1OaOczzJYu0bQVdxowieUxfSqqHm83aAmB0Ej2sZ3ruU/edit?usp=sharing)
+It also logs predictions vs. actual weather data into Google Sheets for accuracy tracking: [View My Demo Google Sheet Here](https://docs.google.com/spreadsheets/d/1OaOczzJYu0bQVdxowieUxfSqqHm83aAmB0Ej2sZ3ruU/edit?usp=sharing).
 
 ## Repository Structure
 
