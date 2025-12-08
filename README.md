@@ -37,7 +37,7 @@ You must set up the following credentials in n8n for the nodes to authenticate:
 * **Telegram API:** Create a credential named `Telegram account` with your Bot Token.
 * **Google Sheets API:** Create a credential named `Google Sheets account` using your Service Account email and Private Key.
 
-### 3. Replace Placeholders (Crucial Step)
+### 3. Replace Placeholders
 To protect privacy and make this template location-neutral, the workflow contains placeholders. You must **Find and Replace** these values in the nodes before activating the workflow.
 
 | Placeholder / Value | Where to find it | Value to replace with |
