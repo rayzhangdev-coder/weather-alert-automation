@@ -23,7 +23,7 @@ It also logs predictions vs. actual weather data into Google Sheets for accuracy
 * **n8n:** Self-hosted (Docker/Node.js) or Cloud version.
 * **Telegram Bot:** You need a Bot Token from `@BotFather`.
 * **WeatherAPI Key:** Free API key from [WeatherAPI.com](https://www.weatherapi.com/).
-* **Google Cloud Console Project:** With Google Sheets API enabled (service account credentials).
+* **Google Service Account:** You need a Google Cloud project with the **Google Sheets API** enabled. You must generate a Service Account email and JSON key file to authenticate.
 
 ## Setup & Installation
 
